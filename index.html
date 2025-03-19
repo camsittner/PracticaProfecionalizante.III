@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Números</title>
+    <style>
+        body {
+
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #IniciartButton,
+        #verificarButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #button:hover,
+        #verificarButton:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 30px;
+            font-size: 35px;
+            font-weight: bold;
+            color: #0c0f0c;
+        }
+
+        #Input {
+
+            padding: 15px;
+            /* Aumenta el espacio dentro del input */
+            font-size: 20px;
+            /* Aumenta el tamaño del texto */
+            width: 150px;
+            /* Aumenta el ancho de la casilla */
+            height: 50px;
+            /* Aumenta la altura de la casilla */
+            text-align: center;
+            border-radius: 5px;
+            /* Bordes redondeados */
+            border: 2px solid #007bff;
+            /* Borde azul */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Oprima el Boton Para Iniciar el Juego</h1>
+
+    <button id="IniciartButton">INICIAR</button> <!-- Botón para iniciar el juego -->
+    <div id="output">0</div> <!-- Área donde se mostrarán los números generados -->
+
+    <input type="number" id="Resultado" placeholder="Ingresa tu resultado"> <!-- Caja de entrada para ingresar el resultado -->
+    <button id="verificarButton">VERIFICAR</button> <!-- Botón para verificar el resultado -->
+    <div id="Mensage"></div> <!-- Mensaje que muestra si el resultado ingresado es correcto o incorrecto -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => { // Espera a que la página cargue completamente antes de ejecutar el script
+            const button = document.getElementById("IniciartButton"); // Obtiene el botón de inicio
+            const output = document.getElementById("output"); // Obtiene el área donde se mostrarán los números
+
+            const verificarButton = document.getElementById("verificarButton"); // Obtiene el botón de verificación
+            const Input = document.getElementById("Resultado"); // Obtiene la caja de entrada para el resultado del usuario
+            const Mensage = document.getElementById("Mensage"); // Obtiene el área de mensaje de resultado
+
+            let totalSum = 0; // Variable que almacenará la suma total de los números generados
+            let count = 0; // Contador de números generados
+
+            button.addEventListener("click", () => { // Evento que se ejecuta cuando se presiona el botón de inicio
+                count = 0; // Reinicia el contador
+                totalSum = 0; // Reinicia la suma total
+                output.textContent = "0"; // Reinicia el contenido mostrado en pantalla
+                Mensage.textContent = ""; // Limpia cualquier mensaje previo
+
+                let interval = setInterval(() => { // Inicia un intervalo que ejecuta la función cada 1 segundo
+                    if (count < 10) { // Verifica si se han generado menos de 10 números
+                        let randomNumber = Math.floor(Math.random() * 21) - 10; // Genera un número aleatorio entre -10 y 10
+                        output.textContent = randomNumber; // Muestra el número generado en pantalla
+                        totalSum += randomNumber; // Suma el número generado a la suma total
+                        count++; // Incrementa el contador
+                    } else {
+                        clearInterval(interval); // Detiene la ejecución cuando se han generado 10 números
+                        output.textContent = "Ahora saca la cuenta"; // Muestra el mensaje final
+                    }
+                }, 1000); // Intervalo de 1 segundo entre cada número generado
+            });
+            //function IniciartButton(){
+            verificarButton.addEventListener("click", () => { // Evento que se ejecuta al presionar el botón de verificación
+                let userResult = parseInt(Input.value); // Obtiene el valor ingresado por el usuario y lo convierte en número
+                if (!isNaN(userResult)) { // Verifica si el valor ingresado es un número válido
+                    if (userResult === totalSum) { // Compara la respuesta del usuario con la suma total
+                        Mensage.textContent = "¡Correcto!"; // Muestra mensaje de éxito si la respuesta es correcta
+                        Mensage.style.color = "green"; // Cambia el color del mensaje a verde
+                    } else {
+                        Mensage.textContent = "Incorrecto, la respuesta era " + totalSum; // Muestra la respuesta correcta si el usuario se equivoca
+                        Mensage.style.color = "red"; // Cambia el color del mensaje a rojo
+                    }
+                } else {
+                    Mensage.textContent = "Por favor ingresa un número válido."; // Mensaje si el usuario no ingresa un número
+                    Mensage.style.color = "orange"; // Cambia el color del mensaje a naranja
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
