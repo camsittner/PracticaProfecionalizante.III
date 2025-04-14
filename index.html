@@ -1,213 +1,119 @@
-<!DOCTYPE html> <!-- Declara el tipo de documento HTML -->
-<html lang="es"> <!-- Define el idioma del documento -->
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
-    <meta charset="UTF-8"> <!-- Especifica el conjunto de caracteres UTF-8 -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Ajusta el diseño para dispositivos móviles -->
-    <title>Batalla Naval</title> <!-- Título de la página -->
-
+    <title>Juego de Números</title>
     <style>
         body {
+
             font-family: Arial, sans-serif;
-            /* Fuente del texto */
             text-align: center;
-            /* Centra el contenido */
+            margin-top: 50px;
         }
 
-        .tablero {
-            display: grid;
-            grid-template-columns: repeat(10, 40px);
-            /* Crea 10 columnas de 40px */
-            grid-template-rows: repeat(10, 40px);
-            /* Crea 10 filas de 40px */
-            gap: 2px;
-            /* Espacio entre celdas */
-            justify-content: center;
-            /* Centra el tablero */
-            margin-top: 20px;
-            /* Espaciado superior */
-        }
-
-        .celda {
-            width: 40px;
-            /* Ancho de la celda */
-            height: 40px;
-            /* Alto de la celda */
-            background-color: rgb(36, 67, 207);
-            /* Color inicial de la celda */
-            display: flex;
-            align-items: center;
-            /* Centra el contenido verticalmente */
-            justify-content: center;
-            /* Centra el contenido horizontalmente */
-            border: 1px solid rgb(255, 255, 255);
-            /* Borde negro */
+        #IniciartButton,
+        #verificarButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            /* Cambia el cursor al pasar sobre una celda */
+            margin-top: 10px;
         }
 
-        .tocado {
-            background-color: red;
-            /* Color cuando un barco es tocado */
+        #button:hover,
+        #verificarButton:hover {
+            background-color: #0056b3;
         }
 
-        .agua {
-            background-color: rgb(40, 190, 228);
-            /* Color cuando se dispara al agua */
+        #output {
+            margin-top: 30px;
+            font-size: 35px;
+            font-weight: bold;
+            color: #0c0f0c;
+        }
+
+        #Input {
+
+            padding: 15px;
+            /* Aumenta el espacio dentro del input */
+            font-size: 20px;
+            /* Aumenta el tamaño del texto */
+            width: 150px;
+            /* Aumenta el ancho de la casilla */
+            height: 50px;
+            /* Aumenta la altura de la casilla */
+            text-align: center;
+            border-radius: 5px;
+            /* Bordes redondeados */
+            border: 2px solid #007bff;
+            /* Borde azul */
         }
     </style>
 </head>
 
 <body>
-    <h1>Batalla Naval</h1> <!-- Título del juego -->
-    <div id="tablero" class="tablero"></div> <!-- Contenedor donde se generará el tablero -->
-    <p id="mensaje"></p> <!-- Elemento para mostrar mensajes del juego -->
+    <h1>Oprima el Boton Para Iniciar el Juego</h1>
 
+    <button id="IniciartButton">INICIAR</button> <!-- Botón para iniciar el juego -->
+    <div id="output">0</div> <!-- Área donde se mostrarán los números generados -->
+
+    <input type="number" id="Resultado" placeholder="Ingresa tu resultado"> <!-- Caja de entrada para ingresar el resultado -->
+    <button id="verificarButton">VERIFICAR</button> <!-- Botón para verificar el resultado -->
+    <div id="Mensage"></div> <!-- Mensaje que muestra si el resultado ingresado es correcto o incorrecto -->
 
     <script>
-        class Barco {  // Define una clase llamada Barco que representará un barco.
-            constructor(tamano) {  // Constructor que recibe el tamaño del barco como parámetro.
-                this.tamano = tamano;  // Guarda el tamaño del barco en la propiedad "tamano".
-                this.posiciones = [];  // Inicializa un array vacío para guardar las posiciones del barco.
-            }
+        document.addEventListener("DOMContentLoaded", () => { // Espera a que la página cargue completamente antes de ejecutar el script
+            const button = document.getElementById("IniciartButton"); // Obtiene el botón de inicio
+            const output = document.getElementById("output"); // Obtiene el área donde se mostrarán los números
 
-            asignarPosiciones(posiciones) {  // Método para asignar posiciones al barco.
-                this.posiciones = posiciones;  // Asigna las posiciones recibidas al barco.
-            }
+            const verificarButton = document.getElementById("verificarButton"); // Obtiene el botón de verificación
+            const Input = document.getElementById("Resultado"); // Obtiene la caja de entrada para el resultado del usuario
+            const Mensage = document.getElementById("Mensage"); // Obtiene el área de mensaje de resultado
 
-            estaHundido(tablero) {  // Método que verifica si el barco está hundido.
-                return this.posiciones.every(pos => tablero[pos[0]][pos[1]] === "X");  // Devuelve true si todas las posiciones del barco están marcadas como "X" (hundido).
-            }
-        }
+            let totalSum = 0; // Variable que almacenará la suma total de los números generados
+            let count = 0; // Contador de números generados
 
-        class Tablero {  // Define una clase llamada Tablero que representará el tablero del juego.
-            constructor(filas, columnas) {  // Constructor que recibe el número de filas y columnas del tablero.
-                this.filas = filas;  // Guarda el número de filas en la propiedad "filas".
-                this.columnas = columnas;  // Guarda el número de columnas en la propiedad "columnas".
-                this.tablero = Array.from({ length: filas }, () => Array(columnas).fill("~"));  // Crea un tablero de tamaño filas x columnas, lleno de "~" (agua).
-                this.barcos = [new Barco(4), new Barco(3), new Barco(2), new Barco(1)];  // Crea un arreglo de barcos con diferentes tamaños.
-                this.juegoTerminado = false;  // Inicializa el estado del juego como no terminado.
-                this.tiempoRestante = 60;  // Inicializa el tiempo restante en 60 segundos.
-                this.temporizadorIniciado = false;  // Marca que el temporizador aún no ha sido iniciado.
-                this.crearTablero();  // Llama al método para crear la interfaz del tablero.
-                this.mostrarTemporizador();  // Llama al método para mostrar el temporizador en pantalla.
-                this.colocarBarcos();  // Llama al método para colocar los barcos aleatoriamente en el tablero.
-            }
+            button.addEventListener("click", () => { // Evento que se ejecuta cuando se presiona el botón de inicio
+                count = 0; // Reinicia el contador
+                totalSum = 0; // Reinicia la suma total
+                output.textContent = "0"; // Reinicia el contenido mostrado en pantalla
+                Mensage.textContent = ""; // Limpia cualquier mensaje previo
 
-            crearTablero() {  // Método para crear el tablero visual en la interfaz.
-                const contenedor = document.getElementById("tablero");  // Obtiene el elemento HTML con id "tablero".
-                contenedor.innerHTML = "";  // Limpia el contenido del tablero (en caso de reinicio).
-                for (let i = 0; i < this.filas; i++) {  // Recorre las filas del tablero.
-                    for (let j = 0; j < this.columnas; j++) {  // Recorre las columnas del tablero.
-                        const celda = document.createElement("div");  // Crea un nuevo elemento "div" que representa una celda.
-                        celda.classList.add("celda");  // Añade la clase CSS "celda" para estilizarla.
-                        celda.dataset.fila = i;  // Asigna el índice de la fila a un atributo de datos de la celda.
-                        celda.dataset.columna = j;  // Asigna el índice de la columna a un atributo de datos de la celda.
-                        celda.addEventListener("click", (evento) => this.disparar(evento));  // Añade un evento de clic que llama al método "disparar".
-                        contenedor.appendChild(celda);  // Añade la celda al contenedor del tablero.
+                let interval = setInterval(() => { // Inicia un intervalo que ejecuta la función cada 1 segundo
+                    if (count < 10) { // Verifica si se han generado menos de 10 números
+                        let randomNumber = Math.floor(Math.random() * 21) - 10; // Genera un número aleatorio entre -10 y 10
+                        output.textContent = randomNumber; // Muestra el número generado en pantalla
+                        totalSum += randomNumber; // Suma el número generado a la suma total
+                        count++; // Incrementa el contador
+                    } else {
+                        clearInterval(interval); // Detiene la ejecución cuando se han generado 10 números
+                        output.textContent = "Ahora saca la cuenta"; // Muestra el mensaje final
                     }
+                }, 1000); // Intervalo de 1 segundo entre cada número generado
+            });
+            //function IniciartButton(){
+            verificarButton.addEventListener("click", () => { // Evento que se ejecuta al presionar el botón de verificación
+                let userResult = parseInt(Input.value); // Obtiene el valor ingresado por el usuario y lo convierte en número
+                if (!isNaN(userResult)) { // Verifica si el valor ingresado es un número válido
+                    if (userResult === totalSum) { // Compara la respuesta del usuario con la suma total
+                        Mensage.textContent = "¡Correcto!"; // Muestra mensaje de éxito si la respuesta es correcta
+                        Mensage.style.color = "green"; // Cambia el color del mensaje a verde
+                    } else {
+                        Mensage.textContent = "Incorrecto, la respuesta era " + totalSum; // Muestra la respuesta correcta si el usuario se equivoca
+                        Mensage.style.color = "red"; // Cambia el color del mensaje a rojo
+                    }
+                } else {
+                    Mensage.textContent = "Por favor ingresa un número válido."; // Mensaje si el usuario no ingresa un número
+                    Mensage.style.color = "orange"; // Cambia el color del mensaje a naranja
                 }
-            }
-
-            mostrarTemporizador() {  // Método para mostrar el temporizador en la pantalla.
-                const tiempoElemento = document.createElement("h1");  // Crea un elemento "h1" para mostrar el tiempo.
-                tiempoElemento.id = "tiempo";  // Asigna un id "tiempo" al elemento.
-                tiempoElemento.textContent = `Tiempo: ${this.tiempoRestante}s`;  // Establece el texto con el tiempo restante.
-                document.body.prepend(tiempoElemento);  // Agrega el elemento de tiempo al inicio del cuerpo del documento.
-            }
-
-            iniciarTemporizador() {  // Método para iniciar el temporizador.
-                if (this.temporizadorIniciado) return;  // Si el temporizador ya ha sido iniciado, no hace nada.
-                this.temporizadorIniciado = true;  // Marca que el temporizador ha sido iniciado.
-
-                this.temporizador = setInterval(() => {  // Establece un intervalo para actualizar el temporizador cada segundo.
-                    this.tiempoRestante--;  // Disminuye el tiempo restante en 1 segundo.
-                    document.getElementById("tiempo").textContent = `Tiempo: ${this.tiempoRestante}s`;  // Actualiza el texto del temporizador en la pantalla.
-                    if (this.tiempoRestante <= 0) {  // Si el tiempo restante llega a 0, termina el juego.
-                        clearInterval(this.temporizador);  // Detiene el temporizador.
-                        this.juegoTerminado = true;  // Marca el juego como terminado.
-                        document.getElementById("mensaje").textContent = "¡Tiempo agotado! Has perdido.";  // Muestra el mensaje de que el jugador perdió.
-                    }
-                }, 1000);  // Ejecuta el código cada 1000 milisegundos (1 segundo).
-            }
-
-            colocarBarcos() {  // Método para colocar los barcos en el tablero de forma aleatoria.
-                this.barcos.forEach(barco => {  // Recorre cada barco en el arreglo de barcos.
-                    let colocado = false;  // Inicializa la bandera para indicar si el barco ha sido colocado.
-                    while (!colocado) {  // Mientras no se haya colocado el barco.
-                        let orientacion = Math.random() < 0.5 ? "H" : "V";  // Aleatoriamente elige una orientación: horizontal ("H") o vertical ("V").
-                        let fila = Math.floor(Math.random() * this.filas);  // Elige una fila aleatoria para colocar el barco.
-                        let col = Math.floor(Math.random() * this.columnas);  // Elige una columna aleatoria para colocar el barco.
-
-                        if (this.puedeColocar(fila, col, barco.tamano, orientacion)) {  // Verifica si el barco se puede colocar en la posición y orientación elegida.
-                            let posiciones = [];  // Crea un arreglo para almacenar las posiciones del barco.
-                            for (let i = 0; i < barco.tamano; i++) {  // Recorre el tamaño del barco para colocar cada parte.
-                                if (orientacion === "H") {  // Si la orientación es horizontal.
-                                    this.tablero[fila][col + i] = "B";  // Coloca el barco en la celda correspondiente.
-                                    posiciones.push([fila, col + i]);  // Guarda la posición en el arreglo de posiciones.
-                                } else {  // Si la orientación es vertical.
-                                    this.tablero[fila + i][col] = "B";  // Coloca el barco en la celda correspondiente.
-                                    posiciones.push([fila + i, col]);  // Guarda la posición en el arreglo de posiciones.
-                                }
-                            }
-                            barco.asignarPosiciones(posiciones);  // Asigna las posiciones al barco.
-                            colocado = true;  // Marca el barco como colocado.
-                        }
-                    }
-                });
-            }
-
-            puedeColocar(fila, col, tamano, orientacion) {  // Método que verifica si se puede colocar un barco en una posición y orientación dadas.
-                if (orientacion === "H" && col + tamano > this.columnas) return false;  // Si la orientación es horizontal, verifica que el barco no se salga de los límites del tablero.
-                if (orientacion === "V" && fila + tamano > this.filas) return false;  // Si la orientación es vertical, verifica que el barco no se salga de los límites del tablero.
-                for (let i = 0; i < tamano; i++) {  // Recorre el tamaño del barco.
-                    if (orientacion === "H" && this.tablero[fila][col + i] !== "~") return false;  // Si alguna celda está ocupada, no se puede colocar el barco.
-                    if (orientacion === "V" && this.tablero[fila + i][col] !== "~") return false;  // Si alguna celda está ocupada, no se puede colocar el barco.
-                }
-                return true;  // Si el barco cabe y las celdas están libres, se puede colocar.
-            }
-
-            disparar(evento) {  // Método que maneja la acción de disparar al tablero.
-                if (this.juegoTerminado) return;  // Si el juego ya ha terminado, no hace nada.
-
-                if (!this.temporizadorIniciado) {  // Si el temporizador no ha comenzado aún.
-                    this.iniciarTemporizador();  // Inicia el temporizador en el primer disparo.
-                }
-
-                const fila = parseInt(evento.target.dataset.fila);  // Obtiene el índice de la fila de la celda clickeada.
-                const col = parseInt(evento.target.dataset.columna);  // Obtiene el índice de la columna de la celda clickeada.
-
-                if (this.tablero[fila][col] === "B") {  // Si la celda contiene un barco.
-                    evento.target.classList.add("tocado");  // Añade una clase CSS "tocado" para marcar la celda como tocada.
-                    evento.target.textContent = "X";  // Muestra "X" en la celda para indicar un impacto.
-                    this.tablero[fila][col] = "X";  // Marca la celda como "X" (impactada) en el tablero.
-
-                    let barcoHundido = this.barcos.find(barco =>  // Busca un barco que haya sido hundido.
-                        barco.posiciones.some(pos => pos[0] === fila && pos[1] === col) && barco.estaHundido(this.tablero));
-                    if (barcoHundido) {  // Si el barco ha sido hundido.
-                        document.getElementById("mensaje").textContent = "¡Hundido!";  // Muestra el mensaje "¡Hundido!".
-                    } else {  // Si el barco solo ha sido tocado, pero no hundido.
-                        document.getElementById("mensaje").textContent = "¡Tocado!";  // Muestra el mensaje "¡Tocado!".
-                    }
-                    if (this.barcos.every(barco => barco.estaHundido(this.tablero))) {  // Si todos los barcos están hundidos.
-                        clearInterval(this.temporizador);  // Detiene el temporizador.
-                        document.getElementById("mensaje").textContent = "¡Felicidades! Has ganado.";  // Muestra el mensaje de victoria.
-                        this.juegoTerminado = true;  // Marca el juego como terminado.
-                    }
-                } else if (this.tablero[fila][col] === "~") {  // Si la celda es agua.
-                    evento.target.classList.add("agua");  // Añade una clase CSS "agua" para marcar la celda como agua.
-                    evento.target.textContent = "~";  // Muestra "~" en la celda para indicar agua.
-                    this.tablero[fila][col] = "O";  // Marca la celda como "O" (agua) en el tablero.
-                    document.getElementById("mensaje").textContent = "¡Agua!";  // Muestra el mensaje "¡Agua!".
-                }
-            }
-        }
-
-        const juego = new Tablero(10, 10);  // Crea una instancia de la clase Tablero con un tablero de 10x10.
+            });
+        });
     </script>
-
-
 </body>
 
 </html>
